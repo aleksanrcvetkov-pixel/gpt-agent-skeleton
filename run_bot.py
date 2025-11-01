@@ -2,8 +2,7 @@ import os, requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
 
-TG_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-OR_KEY   = os.environ["OPENROUTER_API_KEY"]
+TG_TOKEN = 8529221403:AAGjy3n3SCxlmcz7Kjr3HlL7ir4pi8y65-UOR_KEY   = os.environ["OPENROUTER_API_KEY"]
 MODEL    = "openai/gpt-4o-mini"  # можно поменять на любой из OpenRouter
 
 HEADERS = {
