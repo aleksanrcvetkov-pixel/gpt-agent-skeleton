@@ -1,36 +1,33 @@
-import os, requests
+import os
+import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
 
-TG_TOKEN = 8529221403:AAGjy3n3SCxlmcz7Kjr3HlL7ir4pi8y65-UOR_KEY   = os.environ["OPENROUTER_API_KEY"]
-MODEL    = "openai/gpt-4o-mini"  # можно поменять на любой из OpenRouter
+# 🔹 Твой Telegram токен
+TG_TOKEN = "8529221403:AAEbzItivP4UrEYfhXxlSK7iZ1DuYwnEVZA"
+
+# 🔹 Модель и ключ OpenRouter (если используешь)
+MODEL = "openai/gpt-4o-mini"
+OR_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 HEADERS = {
-    "Authorization": f"Bearer {OR_KEY}",
-    "Content-Type": "application/json",
+    "Authorization": f"Bearer {OR_KEY}" if OR_KEY else "",
+    "Content-Type": "application/json"
 }
 
+
+# 🔹 Функция обработки входящих сообщений
 async def on_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_text = (update.message.text or "")[:4000]
+    user_text = (update.message.text or "").strip()
+    print(f"Сообщение от пользователя: {user_text}")  # просто лог в консоль
 
-    payload = {
-        "model": MODEL,
-        "messages": [
-            {"role": "system", "content": "Ты вежливый русскоязычный помощник. Отвечай кратко и по делу."},
-            {"role": "user", "content": user_text}
-        ]
-    }
-
-    resp = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        headers=HEADERS, json=payload, timeout=60
-    )
-    resp.raise_for_status()
-    reply = resp.json()["choices"][0]["message"]["content"]
+    reply = f"Привет, {update.effective_user.first_name}! Ты написал: {user_text}"
     await update.message.reply_text(reply)
 
+
+# 🔹 Запуск бота
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TG_TOKEN).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_msg))
+    print("✅ Бот запущен. Ждёт сообщений...")
     app.run_polling()
-
