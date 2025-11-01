@@ -1,33 +1,23 @@
 import os
-import requests
+import logging
 from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
-# 🔹 Твой Telegram токен
-TG_TOKEN = "8529221403:AAEbzItivP4UrEYfhXxlSK7iZ1DuYwnEVZA"
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("bot")
 
-# 🔹 Модель и ключ OpenRouter (если используешь)
-MODEL = "openai/gpt-4o-mini"
-OR_KEY = os.environ.get("OPENROUTER_API_KEY")
+TG_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 
-HEADERS = {
-    "Authorization": f"Bearer {OR_KEY}" if OR_KEY else "",
-    "Content-Type": "application/json"
-}
+async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Я онлайн ✅")
 
+async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = (update.message.text or "").strip()
+    await update.message.reply_text(f"Эхо: {text}")
 
-# 🔹 Функция обработки входящих сообщений
-async def on_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_text = (update.message.text or "").strip()
-    print(f"Сообщение от пользователя: {user_text}")  # просто лог в консоль
-
-    reply = f"Привет, {update.effective_user.first_name}! Ты написал: {user_text}"
-    await update.message.reply_text(reply)
-
-
-# 🔹 Запуск бота
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TG_TOKEN).build()
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_msg))
-    print("✅ Бот запущен. Ждёт сообщений...")
+    app.add_handler(CommandHandler("start", cmd_start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
+    log.info("✅ Бот запускается...")
     app.run_polling()
